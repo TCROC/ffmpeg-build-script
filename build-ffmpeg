@@ -851,10 +851,14 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
     fi
     CFLAGS+=" -I/usr/local/cuda/include"
     LDFLAGS+=" -L/usr/local/cuda/lib64"
-    CONFIGURE_OPTIONS+=("--enable-cuda-nvcc" "--enable-cuvid" "--enable-nvenc" "--enable-cuda-llvm")
+    CONFIGURE_OPTIONS+=("--enable-cuvid" "--enable-nvenc")
 
-    if [ -z "$LDEXEFLAGS" ]; then
-      CONFIGURE_OPTIONS+=("--enable-libnpp") # Only libnpp cannot be statically linked.
+    if $NONFREE_AND_GPL; then
+      CONFIGURE_OPTIONS+=("--enable-cuda-nvcc" "--enable-cuda-llvm")
+
+      if [ -z "$LDEXEFLAGS" ]; then
+        CONFIGURE_OPTIONS+=("--enable-libnpp") # Only libnpp cannot be statically linked.
+      fi
     fi
 
     # https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
