@@ -14,7 +14,7 @@ RUN apt-get update \
 WORKDIR /app
 COPY ./build-ffmpeg /app/build-ffmpeg
 
-RUN SKIPINSTALL=yes /app/build-ffmpeg --build
+RUN SKIPINSTALL=yes /app/build-ffmpeg --build --full-static
 
 
 # FROM ubuntu:${VER}
