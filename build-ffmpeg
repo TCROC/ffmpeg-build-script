@@ -346,6 +346,10 @@ if build "zlib" "1.2.12"; then
   build_done "zlib" "1.2.12"
 fi
 
+if build "vaapi" "1"; then
+  build_done "vaapi" "1"
+fi
+
 # if build "m4" "1.4.19"; then
 #   download "https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.gz"
 #   execute ./configure --prefix="${WORKSPACE}"
@@ -462,6 +466,8 @@ download "https://github.com/FFmpeg/FFmpeg/archive/refs/heads/release/$FFMPEG_VE
   --disable-everything \
   --enable-cuvid \
   --enable-nvenc \
+  --enable-vaapi \
+  --enable-vdpau \
   --nvccflags='-gencode arch=compute_52,code=sm_52' \
   --enable-amf \
   --enable-pthreads \
@@ -476,19 +482,28 @@ download "https://github.com/FFmpeg/FFmpeg/archive/refs/heads/release/$FFMPEG_VE
   --pkg-config-flags=--static \
   --prefix=/app/workspace \
   --enable-encoder=h264_nvenc \
-  --enable-encoder=h264_amf \
+  --enable-decoder=h264_cuvid \
   --enable-encoder=gif \
   --enable-decoder=gif \
   --enable-decoder=mjpeg \
   --enable-encoder=mjpeg \
+  --enable-encoder=rawvideo \
+  --enable-decoder=rawvideo \
+  --enable-encoder=h264_vaapi \
+  --enable-muxer=rawvideo \
+  --enable-demuxer=rawvideo \
   --enable-muxer=mp4 \
   --enable-muxer=mjpeg \
   --enable-muxer=gif \
   --enable-demuxer=mjpeg \
   --enable-demuxer=image2 \
+  --enable-demuxer=mov \
+  --enable-demuxer=gif \
   --enable-protocol=file \
   --enable-filter=scale \
-  --enable-filter=fps
+  --enable-filter=fps \
+  --enable-filter=hwupload \
+  --enable-hwaccels
 
 execute make -j $MJOBS
 execute make install
