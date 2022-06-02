@@ -350,68 +350,6 @@ if build "vaapi" "1"; then
   build_done "vaapi" "1"
 fi
 
-# if build "m4" "1.4.19"; then
-#   download "https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.gz"
-#   execute ./configure --prefix="${WORKSPACE}"
-#   execute make -j $MJOBS
-#   execute make install
-#   build_done "m4" "1.4.19"
-# fi
-
-# if build "autoconf" "2.71"; then
-#   download "https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.gz"
-#   execute ./configure --prefix="${WORKSPACE}"
-#   execute make -j $MJOBS
-#   execute make install
-#   build_done "autoconf" "2.71"
-# fi
-
-# if build "automake" "1.16.5"; then
-#   download "https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz"
-#   execute ./configure --prefix="${WORKSPACE}"
-#   execute make -j $MJOBS
-#   execute make install
-#   build_done "automake" "1.16.5"
-# fi
-
-# if build "libtool" "2.4.6"; then
-#   download "https://ftpmirror.gnu.org/libtool/libtool-2.4.6.tar.gz"
-#   execute ./configure --prefix="${WORKSPACE}" --enable-static --disable-shared
-#   execute make -j $MJOBS
-#   execute make install
-#   build_done "libtool" "2.4.6"
-# fi
-
-# # av1 dependency
-# if build "cmake" "3.23.1"; then
-#   download "https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1.tar.gz"
-#   execute ./configure --prefix="${WORKSPACE}" --parallel="${MJOBS}" -- -DCMAKE_USE_OPENSSL=OFF
-#   execute make -j $MJOBS
-#   execute make install
-#   build_done "cmake" "3.23.1"
-# fi
-
-##
-## video library
-##
-
-# if build "av1" "ae2be80"; then
-#   # libaom ae2be80 == v3.1.2
-#   download "https://aomedia.googlesource.com/aom/+archive/ae2be8030200925895fa6e98bd274ffdb595cbf6.tar.gz" "av1.tar.gz" "av1"
-#   make_dir "$PACKAGES"/aom_build
-#   cd "$PACKAGES"/aom_build || exit
-#   if $MACOS_M1; then
-#     execute cmake -DENABLE_TESTS=0 -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" -DCMAKE_INSTALL_LIBDIR=lib -DCONFIG_RUNTIME_CPU_DETECT=0 "$PACKAGES"/av1
-#   else
-#     execute cmake -DENABLE_TESTS=0 -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" -DCMAKE_INSTALL_LIBDIR=lib "$PACKAGES"/av1
-#   fi
-#   execute make -j $MJOBS
-#   execute make install
-
-#   build_done "av1" "ae2be80"
-# fi
-# CONFIGURE_OPTIONS+=("--enable-libaom")
-
 ##
 ## HWaccel library
 ##
