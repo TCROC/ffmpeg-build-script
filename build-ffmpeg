@@ -72,14 +72,14 @@ download() {
 
   if [ ! -f "$DOWNLOAD_PATH/$DOWNLOAD_FILE" ]; then
     echo "Downloading $1 as $DOWNLOAD_FILE"
-    curl -L --silent -o "$DOWNLOAD_PATH/$DOWNLOAD_FILE" "$1"
+    curl -L -o "$DOWNLOAD_PATH/$DOWNLOAD_FILE" "$1"
 
     EXITCODE=$?
     if [ $EXITCODE -ne 0 ]; then
       echo ""
       echo "Failed to download $1. Exitcode $EXITCODE. Retrying in 10 seconds"
       sleep 10
-      curl -L --silent -o "$DOWNLOAD_PATH/$DOWNLOAD_FILE" "$1"
+      curl -L -o "$DOWNLOAD_PATH/$DOWNLOAD_FILE" "$1"
     fi
 
     EXITCODE=$?
@@ -118,20 +118,6 @@ download() {
     echo "Error has occurred."
     exit 1
   )
-}
-
-execute() {
-  echo "$ $*"
-
-  OUTPUT=$("$@" 2>&1)
-
-  # shellcheck disable=SC2181
-  if [ $? -ne 0 ]; then
-    echo "$OUTPUT"
-    echo ""
-    echo "Failed to Execute $*" >&2
-    exit 1
-  fi
 }
 
 build() {
@@ -316,41 +302,48 @@ if build "giflib" "5.2.1"; then
   download "https://netcologne.dl.sourceforge.net/project/giflib/giflib-5.2.1.tar.gz"
     if [[ "$OSTYPE" == "darwin"* ]]; then
       download "https://sourceforge.net/p/giflib/bugs/_discuss/thread/4e811ad29b/c323/attachment/Makefile.patch"
-      execute patch -p0 --forward "${PACKAGES}/giflib-5.2.1/Makefile" "${PACKAGES}/Makefile.patch" || true
+      patch -p0 --forward "${PACKAGES}/giflib-5.2.1/Makefile" "${PACKAGES}/Makefile.patch" || true
     fi
   cd "${PACKAGES}"/giflib-5.2.1 || exit
   #multicore build disabled for this library
-  execute make
-  execute make PREFIX="${WORKSPACE}" install
+  make
+  make PREFIX="${WORKSPACE}" install
   build_done "giflib" "5.2.1"
 fi
 
 if build "pkg-config" "0.29.2"; then
   download "https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz"
-  execute ./configure --silent --prefix="${WORKSPACE}" --with-pc-path="${WORKSPACE}"/lib/pkgconfig --with-internal-glib
-  execute make -j $MJOBS
-  execute make install
+  ./configure --prefix="${WORKSPACE}" --with-pc-path="${WORKSPACE}"/lib/pkgconfig --with-internal-glib
+  make -j $MJOBS
+  make install
   build_done "pkg-config" "0.29.2"
 fi
 
 if build "yasm" "1.3.0"; then
   download "https://github.com/yasm/yasm/releases/download/v1.3.0/yasm-1.3.0.tar.gz"
-  execute ./configure --prefix="${WORKSPACE}"
-  execute make -j $MJOBS
-  execute make install
+  ./configure --prefix="${WORKSPACE}"
+  make -j $MJOBS
+  make install
   build_done "yasm" "1.3.0"
 fi
 
 if build "zlib" "1.2.12"; then
   download "https://github.com/madler/zlib/archive/refs/tags/v1.2.12.tar.gz"
-  execute ./configure --static --prefix="${WORKSPACE}"
-  execute make -j $MJOBS
-  execute make install
+  ./configure --static --prefix="${WORKSPACE}"
+  make -j $MJOBS
+  make install
   build_done "zlib" "1.2.12"
 fi
 
 if build "vaapi" "1"; then
   build_done "vaapi" "1"
+fi
+
+if build "onevpl" "2023.2.1"; then
+  download "https://github.com/oneapi-src/oneVPL/archive/refs/tags/v2023.2.1.tar.gz"
+  cmake -DCMAKE_INSTALL_PREFIX="${WORKSPACE} -DBUILD_SHARED_LIBS=OFF"
+  cmake --build . --config Release
+  build_done "onevpl" "2023.2.1"
 fi
 
 ##
@@ -361,8 +354,8 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   if command_exists "nvcc"; then
     if build "nv-codec" "$NV_CODEC_HEADERS_VERSION"; then
       download "https://github.com/FFmpeg/nv-codec-headers/releases/download/n$NV_CODEC_HEADERS_VERSION/nv-codec-headers-$NV_CODEC_HEADERS_VERSION.tar.gz"
-      execute make PREFIX="${WORKSPACE}"
-      execute make install PREFIX="${WORKSPACE}"
+      make PREFIX="${WORKSPACE}"
+      make install PREFIX="${WORKSPACE}"
       build_done "nv-codec" "$NV_CODEC_HEADERS_VERSION"
     fi
     CFLAGS+=" -I/usr/local/cuda/include"
@@ -383,9 +376,9 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
 
   if build "amf" "$AMF_VERSION"; then
     download "https://github.com/GPUOpen-LibrariesAndSDKs/AMF/archive/refs/tags/v$AMF_VERSION.tar.gz" "AMF-$AMF_VERSION.tar.gz" "AMF-$AMF_VERSION"
-    execute rm -rf "${WORKSPACE}/include/AMF"
-    execute mkdir -p "${WORKSPACE}/include/AMF"
-    execute cp -r "${PACKAGES}"/AMF-$AMF_VERSION/AMF-$AMF_VERSION/amf/public/include/* "${WORKSPACE}/include/AMF/"
+    rm -rf "${WORKSPACE}/include/AMF"
+    mkdir -p "${WORKSPACE}/include/AMF"
+    cp -r "${PACKAGES}"/AMF-$AMF_VERSION/AMF-$AMF_VERSION/amf/public/include/* "${WORKSPACE}/include/AMF/"
     build_done "amf" "$AMF_VERSION"
   fi
   CONFIGURE_OPTIONS+=("--enable-amf")
@@ -452,8 +445,8 @@ download "https://github.com/FFmpeg/FFmpeg/archive/refs/heads/release/$FFMPEG_VE
   --enable-filter=setpts \
   --enable-hwaccels
 
-execute make -j $MJOBS
-execute make install
+make -j $MJOBS
+make install
 
 INSTALL_FOLDER="/usr/bin"
 if [[ "$OSTYPE" == "darwin"* ]]; then
